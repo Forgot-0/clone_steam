@@ -11,7 +11,6 @@ class Email(BaseSettings):
 
 class API(BaseSettings):
     port: int = Field(alias='API_PORT')
-    host: str = Field(alias='API_HOST')
 
 
 class DataBase(BaseSettings):
@@ -19,7 +18,6 @@ class DataBase(BaseSettings):
     username: str = Field(alias='DATABASE_USERNAME')
     password: str = Field(alias='DATABASE_PASSWORD')
     port: str = Field(alias='DATABASE_PORT')
-    host: str = Field(alias='DATABASE_HOST')
 
 
 class Config:
@@ -27,5 +25,3 @@ class Config:
     api = API()
     email = Email()
 
-
-config = Config()

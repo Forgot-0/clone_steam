@@ -15,15 +15,11 @@ class BaseGameRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_by_id(self, id: UUID) -> Game:
+    async def get_by_id(self, id: UUID) -> Game | None:
         ...
 
     @abstractmethod
     async def get_all(self, pagination: PaginationInfra) -> tuple[Iterable[Game], int]:
-        ...
-
-    @abstractmethod
-    async def update(self, game: Game) -> None:
         ...
 
     @abstractmethod
@@ -44,7 +40,7 @@ class MemoryGameRepository(BaseGameRepository):
     async def create(self, game: Game) -> None:
         self.db.append(game)
 
-    async def get_by_id(self, id: UUID) -> Game:
+    async def get_by_id(self, id: UUID) -> Game | None:
         for game in self.db:
             if game.id == id:
                 return game
@@ -52,12 +48,6 @@ class MemoryGameRepository(BaseGameRepository):
 
     async def get_all(self, pagination: PaginationInfra) -> tuple[Iterable[Game], int]:
         return list(filter(lambda el: not el.is_deleted, self.db[pagination.offset:pagination.limit])), len(self.db)
-
-    async def update(self, game: Game) -> None:
-        for i in range(len(self.db)):
-            if game.id == self.db[i].id:
-                self.db[i] = game
-                break
 
     async def check_exists_by_name(self, title: str) -> bool:
         for game in self.db:

@@ -11,7 +11,7 @@ from infra.repositories.filters import PaginationInfra
 class BaseLanguageRepository(ABC):
 
     @abstractmethod
-    async def get_by_id(self, id: UUID) -> Language:
+    async def get_by_id(self, id: UUID) -> Language | None:
         ...
 
     @abstractmethod 

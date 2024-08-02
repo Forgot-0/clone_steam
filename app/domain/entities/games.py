@@ -44,7 +44,8 @@ class Game(AggregateRoot):
             title=title,
             description=description,
             developer=developer,
-            release_date=release_date
+            release_date=release_date,
+            is_deleted=False
         )
 
     def add_tags(self, tags: Iterable[Tag]) -> None:

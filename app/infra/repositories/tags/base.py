@@ -11,7 +11,7 @@ from infra.repositories.filters import PaginationInfra
 class BaseTagRepository(ABC):
 
     @abstractmethod
-    async def get_by_id(self, id: UUID) -> Tag:
+    async def get_by_id(self, id: UUID) -> Tag | None:
         ...
 
     @abstractmethod 

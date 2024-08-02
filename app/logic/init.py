@@ -1,10 +1,16 @@
 from functools import lru_cache
+from motor.motor_asyncio import AsyncIOMotorClient
 from punq import Container, Scope
 
-from infra.repositories.developer.base import BaseDeveloperRepository, MemoryDeveloperRepository
-from infra.repositories.game.base import BaseGameRepository, MemoryGameRepository
-from infra.repositories.languages.base import BaseLanguageRepository, MemoryLanguageRepository
-from infra.repositories.tags.base import BaseTagRepository, MemoryTagRepository
+from infra.repositories.developer.mongo.repository import MongoDeveloperRepository
+from infra.repositories.game.mongo.repository import MongoGameRepository
+from infra.repositories.languages.mongo.repository import MongoLanguageRepository
+from infra.repositories.tags.mongo.repository import MongoTagRepository
+from settings.config import Config
+from infra.repositories.developer.base import BaseDeveloperRepository
+from infra.repositories.game.base import BaseGameRepository
+from infra.repositories.languages.base import BaseLanguageRepository
+from infra.repositories.tags.base import BaseTagRepository
 from logic.commands.developers.create import CreateDeveloperCommand, CreateDeveloperCommandHandler
 from logic.commands.developers.delete import DeleteDeveloperCommand, DeleteDeveloperCommandHandler
 from logic.commands.games.create import CreateGameCommand, CreateGameCommandHandler
@@ -30,10 +36,52 @@ def init_container() -> Container:
 def _init_container() -> Container:
     container = Container()
 
-    container.register(BaseGameRepository, MemoryGameRepository, scope=Scope.singleton)
-    container.register(BaseDeveloperRepository, MemoryDeveloperRepository, scope=Scope.singleton)
-    container.register(BaseTagRepository, MemoryTagRepository, scope=Scope.singleton)
-    container.register(BaseLanguageRepository, MemoryLanguageRepository, scope=Scope.singleton)
+    container.register(Config, instance=Config(), scope=Scope.singleton)
+
+    config: Config = container.resolve(Config)
+
+    def create_mongodb_client():
+        return AsyncIOMotorClient(
+            config.db.url,
+            serverSelectionTimeoutMS=3000,
+            uuidRepresentation='standard'
+        )
+
+    container.register(AsyncIOMotorClient, factory=create_mongodb_client, scope=Scope.singleton)
+    client = container.resolve(AsyncIOMotorClient)
+
+    def init_mongo_developer_repository() -> BaseDeveloperRepository:
+        return MongoDeveloperRepository(
+            mongo_db_client=client,
+            mongo_db_db_name='test',
+            mongo_db_collection_name='developers',
+        )
+
+    def init_mongo_game_repository() -> BaseGameRepository:
+        return MongoGameRepository(
+            mongo_db_client=client,
+            mongo_db_db_name='test',
+            mongo_db_collection_name='games',
+        )
+    
+    def init_mongo_tag_repository() -> BaseTagRepository:
+        return MongoTagRepository(
+            mongo_db_client=client,
+            mongo_db_db_name='test',
+            mongo_db_collection_name='tags'
+        )
+
+    def init_mongo_language_repository() -> BaseLanguageRepository:
+        return MongoLanguageRepository(
+            mongo_db_client=client,
+            mongo_db_db_name='test',
+            mongo_db_collection_name='languages'
+        )
+
+    container.register(BaseGameRepository, factory=init_mongo_game_repository, scope=Scope.singleton)
+    container.register(BaseDeveloperRepository, factory=init_mongo_developer_repository, scope=Scope.singleton)
+    container.register(BaseTagRepository, factory=init_mongo_tag_repository, scope=Scope.singleton)
+    container.register(BaseLanguageRepository, factory=init_mongo_language_repository, scope=Scope.singleton)
 
 
     #Game
@@ -84,6 +132,8 @@ def _init_container() -> Container:
             GetGamesFilterQuery,
             container.resolve(GetGamesFilterQueryHandler),
         )
+
+
         #Developer
         mediator.register_command(
             CreateDeveloperCommand,
@@ -105,6 +155,7 @@ def _init_container() -> Container:
             container.resolve(DetailDevelopersQueryHandler),
         )
 
+
         #Tag
         mediator.register_command(
             CreateTagCommand,
@@ -115,6 +166,7 @@ def _init_container() -> Container:
             GetAllTagsQuery,
             container.resolve(GetAllTagsQueryHandler),
         )
+
 
         #Language
         mediator.register_command(
