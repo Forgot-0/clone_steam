@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Iterable, List, Optional
 from uuid import UUID
+from fastapi import Query
 from pydantic import BaseModel, Field
 
 from infra.repositories.filters import GetGamesFiltersInfra
@@ -24,13 +25,12 @@ class CreateGameRequestSchema(BaseModel):
 class GameFilters(BaseModel):
     title: Optional[str] = None
     developer_id: Optional[UUID] = None
-    tags: Iterable[UUID] = []
-    languages: Iterable[UUID] = []
 
-    def to_infra(self):
+
+    def to_infra(self, tags, languages):
         return GetGamesFiltersInfra(
             title=self.title,
             developer_id=self.developer_id,
-            tags=self.tags,
-            languages=self.languages
+            tags=tags,
+            languages=languages
         )

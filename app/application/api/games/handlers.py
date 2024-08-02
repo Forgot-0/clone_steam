@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from punq import Container
@@ -114,6 +115,8 @@ async def get_all_games(
 async def get_games(
     filters: GameFilters=Depends(),
     pagination: Pagination=Depends(),
+    tags: list[UUID]=Query(default_factory=list),
+    languages: list[UUID]=Query(default_factory=list),
     container: Container=Depends(init_container)
 ) -> GetAllGamesQueryResponseSchema:
     mediator: Mediator = container.resolve(Mediator)
@@ -121,7 +124,7 @@ async def get_games(
     try:
         games, count = await mediator.handle_query(
             GetGamesFilterQuery(
-                filters=filters.to_infra(), 
+                filters=filters.to_infra(tags=tags, languages=languages), 
                 pagination=pagination.to_infra()
                 )
             )

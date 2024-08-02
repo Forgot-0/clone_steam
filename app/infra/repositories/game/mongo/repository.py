@@ -42,13 +42,13 @@ class MongoGameRepository(BaseMongoDBRepository, BaseGameRepository):
         if filters.developer_id is not None:
             filter_dict['developer._id'] = filters.developer_id
         
-        if filters.tags is not None:
+        if filters.tags:
             filter_dict['tags._id'] = {'$all': filters.tags}
 
-        if filters.languages is not None:
+        if filters.languages:
             filter_dict['languages._id'] = {'$all': filters.languages}
 
-
+        print(filters)
         games = await self._collection.find(filter_dict) \
             .skip(pagination.offset).limit(pagination.limit).to_list(length=None)
 
