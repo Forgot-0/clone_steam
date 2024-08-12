@@ -34,7 +34,6 @@ class MongoDeveloperRepository(BaseMongoDBRepository, BaseDeveloperRepository):
 
     async def get_by_email(self, email: str) -> Developer | None:
         developer = await self._collection.find_one({'email': email})
-
         if developer:
             return convert_developer_mapping_to_entity(developer)
 

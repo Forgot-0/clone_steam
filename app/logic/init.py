@@ -1,11 +1,16 @@
 from functools import lru_cache
+from fastapi_mail import ConnectionConfig, FastMail
 from motor.motor_asyncio import AsyncIOMotorClient
 from punq import Container, Scope
 
+from domain.events.developers.developer_created import NewDeveloperCreated
+from infra.email.base import EmailBackend
+from infra.message_broker.base import BaseMessageBroker
 from infra.repositories.developer.mongo.repository import MongoDeveloperRepository
 from infra.repositories.game.mongo.repository import MongoGameRepository
 from infra.repositories.languages.mongo.repository import MongoLanguageRepository
 from infra.repositories.tags.mongo.repository import MongoTagRepository
+from logic.events.developer.send_activation_email import NewDeveloperCreatedEventHander
 from settings.config import Config
 from infra.repositories.developer.base import BaseDeveloperRepository
 from infra.repositories.game.base import BaseGameRepository
@@ -27,8 +32,6 @@ from logic.queries.languages.get_all import GetAllLanguageQuery, GetAllLanguageQ
 from logic.queries.tags.get_all import GetAllTagsQuery, GetAllTagsQueryHandler
 
 
-
-
 @lru_cache(1)
 def init_container() -> Container:
     return _init_container()
@@ -40,6 +43,34 @@ def _init_container() -> Container:
 
     config: Config = container.resolve(Config)
 
+    #Email
+    container.register(ConnectionConfig, instance=ConnectionConfig(
+        MAIL_USERNAME=Config.email.username,
+        MAIL_PASSWORD=Config.email.password,
+        MAIL_FROM=Config.email.from_email,
+        MAIL_PORT=Config.email.port,
+        MAIL_SERVER=Config.email.server,
+        MAIL_STARTTLS=Config.email.starttls,
+        MAIL_SSL_TLS=Config.email.ssl_tls,
+        USE_CREDENTIALS=Config.email.use_credentials,
+        VALIDATE_CERTS=Config.email.validate_certs,
+        ),
+        scope=Scope.singleton
+    )
+
+    container.register(EmailBackend, 
+                        instance=FastMail(
+                            config=container.resolve(ConnectionConfig)
+                        ), 
+                        scope=Scope.singleton)
+
+    #Broker
+    def create_message_broker() -> BaseMessageBroker:
+        return 
+
+    container.register(BaseMessageBroker, factory=create_message_broker, scope=Scope.singleton)
+
+    #Mongo
     def create_mongodb_client():
         return AsyncIOMotorClient(
             config.db.url,
@@ -63,7 +94,7 @@ def _init_container() -> Container:
             mongo_db_db_name='test',
             mongo_db_collection_name='games',
         )
-    
+
     def init_mongo_tag_repository() -> BaseTagRepository:
         return MongoTagRepository(
             mongo_db_client=client,
@@ -83,7 +114,6 @@ def _init_container() -> Container:
     container.register(BaseTagRepository, factory=init_mongo_tag_repository, scope=Scope.singleton)
     container.register(BaseLanguageRepository, factory=init_mongo_language_repository, scope=Scope.singleton)
 
-
     #Game
     container.register(CreateGameCommandHandler)
 
@@ -97,6 +127,8 @@ def _init_container() -> Container:
 
     container.register(GetAllDevelopersQueryHandler)
     container.register(DetailDevelopersQueryHandler)
+
+    # container.register(NewDeveloperCreatedEventHander)
 
     #Tag
     container.register(CreateTagCommandHandler)
@@ -133,7 +165,6 @@ def _init_container() -> Container:
             container.resolve(GetGamesFilterQueryHandler),
         )
 
-
         #Developer
         mediator.register_command(
             CreateDeveloperCommand,
@@ -154,6 +185,11 @@ def _init_container() -> Container:
             DetailDeveloperQuery,
             container.resolve(DetailDevelopersQueryHandler),
         )
+
+        # mediator.register_event(
+        #     NewDeveloperCreated,
+        #     [container.resolve(NewDeveloperCreatedEventHander)]
+        # )
 
 
         #Tag

@@ -42,11 +42,9 @@ class CreateGameCommandHandler(BaseCommandHandler[CreateGameCommand, Game]):
             release_date=command.release_date
         )
 
-        game.add_medias(medias=[Url(media) for media in command.medias])
-        languages = [await self.language_repository.get_by_id(language) for language in command.languages]
-        game.add_languages(languages=languages)
-        tags = [await self.tag_repository.get_by_id(tag_id) for tag_id in command.tags]
-        game.add_tags(tags=tags)
+        game.medias = [Url(media) for media in command.medias]
+        game.languages = [await self.language_repository.get_by_id(language) for language in command.languages]
+        game.tags = [await self.tag_repository.get_by_id(tag_id) for tag_id in command.tags]
 
         await self.game_repository.create(game)
 

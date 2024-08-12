@@ -34,21 +34,22 @@ class MongoGameRepository(BaseMongoDBRepository, BaseGameRepository):
         return bool(game)
 
     async def get_games(self, filters: GetGamesFiltersInfra, pagination: PaginationInfra) -> tuple[Iterable[Game], int]:
-        filter_dict = {}
+        filter_dict = {
+            'is_deleted': False
+        }
 
         if filters.title is not None:
             filter_dict['title'] = filters.title
 
         if filters.developer_id is not None:
             filter_dict['developer._id'] = filters.developer_id
-        
+
         if filters.tags:
             filter_dict['tags._id'] = {'$all': filters.tags}
 
         if filters.languages:
             filter_dict['languages._id'] = {'$all': filters.languages}
 
-        print(filters)
         games = await self._collection.find(filter_dict) \
             .skip(pagination.offset).limit(pagination.limit).to_list(length=None)
 

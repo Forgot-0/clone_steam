@@ -13,7 +13,7 @@ from application.api.schemas import ErrorSchema, Pagination
 from domain.exception.base import ApplicationException
 from logic.commands.developers.create import CreateDeveloperCommand
 from logic.commands.developers.delete import DeleteDeveloperCommand
-from logic.init import init_container
+from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.developers.detail import DetailDeveloperQuery
 from logic.queries.developers.get_all import GetAllDevelopersQuery

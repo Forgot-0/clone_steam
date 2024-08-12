@@ -14,3 +14,11 @@ if __name__ == "__main__":
 
 # docker compose -f docker_compose/app.yaml --env-file .env up --build -d
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'welcome2038@gmail.com'
+EMAIL_HOST_PASSWORD = 'xzvh iibl nxtv rxek'
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = 'welcome2038@gmail.com'
+

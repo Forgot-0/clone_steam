@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from domain.entities.developers import Developer
 from domain.values.base import Email, Slug, Text
+from infra.email.base import EmailBackend
 from infra.repositories.developer.base import BaseDeveloperRepository
 from logic.commands.base import BaseCommand, BaseCommandHandler
 from logic.exeption import EmailAlreadyExistsException, IsDeleted, NameAlreadyExistsException
@@ -18,13 +19,13 @@ class CreateDeveloperCommand(BaseCommand):
 @dataclass(frozen=True)
 class CreateDeveloperCommandHandler(BaseCommandHandler[CreateDeveloperCommand, Developer]):
     developer_repository: BaseDeveloperRepository
+    email_backend: EmailBackend
 
     async def handle(self, command: CreateDeveloperCommand) -> Developer:
         if await self.developer_repository.check_exists_by_name(command.name):
             raise NameAlreadyExistsException(command.name)
 
         developer = await self.developer_repository.get_by_email(command.email)
-
         if developer:
             if developer.is_deleted:
                 raise IsDeleted(developer.email)
@@ -36,6 +37,8 @@ class CreateDeveloperCommandHandler(BaseCommandHandler[CreateDeveloperCommand, D
 
         developer = Developer.create_developer(name=name, slug=slug, email=email)
         await self.developer_repository.create(developer)
+        
+        # await self.email_backend.send_email()
 
         # await self.mediator.publish(developer.pull_events())
         return developer

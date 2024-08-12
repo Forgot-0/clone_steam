@@ -40,22 +40,13 @@ class Game(AggregateRoot):
             developer: Developer,
             release_date: datetime
         ) -> 'Game':
-        return cls(
+        game = cls(
             title=title,
             description=description,
             developer=developer,
             release_date=release_date,
-            is_deleted=False
         )
-
-    def add_tags(self, tags: Iterable[Tag]) -> None:
-        self.tags.extend(tags)
-
-    def add_medias(self, medias: Iterable[Url]) -> None:
-        self.medias.extend(medias)
-
-    def add_languages(self, languages: Iterable[Language]) -> None:    
-        self.languages.extend(languages)
+        return game
 
     def delete(self) -> None:
         if self.is_deleted:
