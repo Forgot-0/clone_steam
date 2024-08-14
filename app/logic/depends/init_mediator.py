@@ -1,9 +1,12 @@
 from punq import Container
+from domain.events.developers.developer_created import NewDeveloperCreated
 from logic.commands.developers.create import CreateDeveloperCommand, CreateDeveloperCommandHandler
 from logic.commands.developers.delete import DeleteDeveloperCommand, DeleteDeveloperCommandHandler
 from logic.commands.games.create import CreateGameCommand, CreateGameCommandHandler
 from logic.commands.languages.create import CreateLanguageCommand, CreateLanguageCommandHandler
 from logic.commands.tags.create import CreateTagCommand, CreateTagCommandHandler
+from logic.events.base import PublisherEventHandler
+from logic.events.developer.created import NewDeveloperCreatedEventHander
 from logic.queries.developers.detail import DetailDeveloperQuery, DetailDevelopersQueryHandler
 from logic.queries.developers.get_all import GetAllDevelopersQueryHandler, GetAllDevelopersQuery
 from logic.queries.games.detail import DetailGameQuery, DetailGameQueryHandler
@@ -17,6 +20,8 @@ from logic.mediator.event_mediator import EventMediator
 
 
 def init_mediator(container: Container) -> Mediator:
+    container.register(PublisherEventHandler)
+
     #Game
     container.register(CreateGameCommandHandler)
 
@@ -31,7 +36,7 @@ def init_mediator(container: Container) -> Mediator:
     container.register(GetAllDevelopersQueryHandler)
     container.register(DetailDevelopersQueryHandler)
 
-    # container.register(NewDeveloperCreatedEventHander)
+    container.register(NewDeveloperCreatedEventHander)
 
     #Tag
     container.register(CreateTagCommandHandler)
@@ -59,6 +64,14 @@ def init_mediator(container: Container) -> Mediator:
 
     mediator.register_query(GetAllDevelopersQuery, container.resolve(GetAllDevelopersQueryHandler))
     mediator.register_query(DetailDeveloperQuery, container.resolve(DetailDevelopersQueryHandler))
+
+    mediator.register_event(
+        NewDeveloperCreated, 
+        [
+            container.resolve(PublisherEventHandler), 
+            container.resolve(NewDeveloperCreatedEventHander)
+            ]
+        )
 
     #Tag
     mediator.register_command(CreateTagCommand, [container.resolve(CreateTagCommandHandler)])

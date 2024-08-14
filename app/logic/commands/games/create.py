@@ -47,5 +47,6 @@ class CreateGameCommandHandler(BaseCommandHandler[CreateGameCommand, Game]):
         game.tags = [await self.tag_repository.get_by_id(tag_id) for tag_id in command.tags]
 
         await self.game_repository.create(game)
+        await self.mediator.publish(game.pull_events())
 
         return game

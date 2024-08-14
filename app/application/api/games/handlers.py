@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from punq import Container
@@ -12,7 +11,7 @@ from application.api.games.schemas.responses import (
 from application.api.schemas import ErrorSchema, Pagination
 from domain.exception.base import ApplicationException
 from logic.commands.games.create import CreateGameCommand
-from logic.init import init_container
+from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.games.detail import DetailGameQuery
 from logic.queries.games.get_all import GetAllGameQuery
@@ -101,7 +100,6 @@ async def get_all_games(
         offset=pagination.offset,
         limit=pagination.limit,
     )
-
 
 @router.get(
     '/search/',

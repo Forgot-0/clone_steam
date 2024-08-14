@@ -53,6 +53,9 @@ async def create_developer(
     "/{developer_id}", 
     status_code=status.HTTP_204_NO_CONTENT,
     description='Delete developer',
+    responses={
+        status.HTTP_400_BAD_REQUEST: {'model': ErrorSchema}
+    }
 )
 async def delete_developer(
     developer_id: UUID,

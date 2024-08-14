@@ -20,7 +20,7 @@ class CreateLanguageCommandHandler(BaseCommandHandler[CreateLanguageCommand, Lan
     language_repository: BaseLanguageRepository
 
     async def handle(self, command: CreateLanguageCommand) -> Language:
-        
+
         language = Language(
             lang=Title(command.lang),
             slug=Slug(command.slug),

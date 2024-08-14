@@ -5,7 +5,7 @@ from application.api.tags.schemas.requests import CreateTagRequestSchema
 from application.api.tags.schemas.responses import GetAllTagsQueryResponseSchema, TagDetailSchema
 from domain.exception.base import ApplicationException
 from logic.commands.tags.create import CreateTagCommand
-from logic.init import init_container
+from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.tags.get_all import GetAllTagsQuery
 

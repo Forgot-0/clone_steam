@@ -6,7 +6,7 @@ from application.api.languages.schemas.responses import GetAllLanguagesQueryResp
 from application.api.schemas import ErrorSchema, Pagination
 from domain.exception.base import ApplicationException
 from logic.commands.languages.create import CreateLanguageCommand
-from logic.init import init_container
+from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.languages.get_all import GetAllLanguageQuery
 

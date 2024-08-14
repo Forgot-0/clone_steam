@@ -1,6 +1,8 @@
+aiokafka==0.11.0
 aiosmtplib==2.0.2
 annotated-types==0.7.0
 anyio==4.4.0
+async-timeout==4.0.3
 blinker==1.8.2
 certifi==2024.7.4
 click==8.1.7
@@ -21,6 +23,7 @@ MarkupSafe==2.1.5
 mdurl==0.1.2
 motor==3.5.1
 orjson==3.10.6
+packaging==24.1
 punq==0.7.0
 pydantic==2.8.2
 pydantic-settings==2.3.4

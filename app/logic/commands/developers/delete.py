@@ -24,4 +24,6 @@ class DeleteDeveloperCommandHandler(BaseCommandHandler[DeleteDeveloperCommand, D
 
         developer.delete()
 
+        await self.mediator.publish(developer.pull_events())
+
         await self.developer_repository.update(developer=developer)

@@ -10,7 +10,7 @@ from logic.events.base import BaseEventHandler
 class NewDeveloperCreatedEventHander(BaseEventHandler[NewDeveloperCreated, None]):
     async def handle(self, event: NewDeveloperCreated) -> None:
         await self.message_broker.send_message(
-            topic=self.broker_topic,
+            topic='game',
             value=convert_event_to_broker_message(event=event),
             key=str(event.event_id).encode(),
         )

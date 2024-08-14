@@ -4,7 +4,7 @@ from fastapi_mail import ConnectionConfig, FastMail
 from infra.email.base import EmailBackend
 from motor.motor_asyncio import AsyncIOMotorClient
 from infra.message_broker.base import BaseMessageBroker
-from infra.repositories.developer.base import BaseDeveloperRepository
+from infra.repositories.developer.base import BaseDeveloperRepository, MemoryDeveloperRepository
 from infra.repositories.game.base import BaseGameRepository
 from infra.repositories.languages.base import BaseLanguageRepository
 from infra.repositories.tags.base import BaseTagRepository
@@ -30,15 +30,15 @@ def _init_container() -> Container:
 
     # Email
     container.register(ConnectionConfig, instance=ConnectionConfig(
-        MAIL_USERNAME=Config.email.username,
-        MAIL_PASSWORD=Config.email.password,
-        MAIL_FROM=Config.email.from_email,
-        MAIL_PORT=Config.email.port,
-        MAIL_SERVER=Config.email.server,
-        MAIL_STARTTLS=Config.email.starttls,
-        MAIL_SSL_TLS=Config.email.ssl_tls,
-        USE_CREDENTIALS=Config.email.use_credentials,
-        VALIDATE_CERTS=Config.email.validate_certs,
+        MAIL_USERNAME=config.email.username,
+        MAIL_PASSWORD=config.email.password,
+        MAIL_FROM=config.email.from_email,
+        MAIL_PORT=config.email.port,
+        MAIL_SERVER=config.email.server,
+        MAIL_STARTTLS=config.email.starttls,
+        MAIL_SSL_TLS=config.email.ssl_tls,
+        USE_CREDENTIALS=config.email.use_credentials,
+        VALIDATE_CERTS=config.email.validate_certs,
     ), scope=Scope.singleton)
 
     container.register(EmailBackend, 
@@ -48,7 +48,11 @@ def _init_container() -> Container:
                         scope=Scope.singleton)
 
     # Broker
-    container.register(BaseMessageBroker, factory=create_message_broker, scope=Scope.singleton)
+    container.register(
+        BaseMessageBroker,
+        factory=lambda: create_message_broker(config=config),
+        scope=Scope.singleton
+    )
 
     # MongoDB
     def create_mongodb_client():
@@ -64,26 +68,29 @@ def _init_container() -> Container:
     # Repositories
     container.register(
         BaseGameRepository, 
-        factory=lambda: init_mongo_game_repository(client), 
+        factory=lambda: init_mongo_game_repository(client),
         scope=Scope.singleton
     )
     container.register(
         BaseDeveloperRepository,
-        factory=lambda: init_mongo_developer_repository(client), 
+        factory=lambda: init_mongo_developer_repository(client),
         scope=Scope.singleton
     )
     container.register(
         BaseTagRepository, 
-        factory=lambda: init_mongo_tag_repository(client), 
+        factory=lambda: init_mongo_tag_repository(client),
         scope=Scope.singleton
     )
     container.register(
         BaseLanguageRepository, 
-        factory=lambda: init_mongo_language_repository(client), 
+        factory=lambda: init_mongo_language_repository(client),
         scope=Scope.singleton
     )
 
     # Mediator
-    container.register(Mediator, factory=lambda: init_mediator(container=container))
+    container.register(
+        Mediator,
+        factory=lambda: init_mediator(container=container)
+    )
 
     return container

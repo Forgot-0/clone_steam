@@ -40,5 +40,5 @@ class CreateDeveloperCommandHandler(BaseCommandHandler[CreateDeveloperCommand, D
         
         # await self.email_backend.send_email()
 
-        # await self.mediator.publish(developer.pull_events())
+        await self.mediator.publish(developer.pull_events())
         return developer

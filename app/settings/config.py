@@ -26,8 +26,13 @@ class DataBase(BaseSettings):
     port: str = Field(alias='DATABASE_PORT')
 
 
+class Broker(BaseSettings):
+    url: str = "kafka:29092"#Field(alias="BROKER_URL")
+
+
 class Config:
-    db = DataBase()
     api = API()
+    broker = Broker()
+    db = DataBase()
     email = Email()
 
