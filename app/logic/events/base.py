@@ -19,7 +19,7 @@ ER = TypeVar('ER', bound=Any)
 @dataclass(frozen=True)
 class BaseEventHandler(ABC, Generic[ET, ER]):
     message_broker: BaseMessageBroker
-    broker_topic: str = 'game'
+    broker_topic: str | None = 'game'
 
     @abstractmethod
     async def handle(self, event: ET) -> ER:
@@ -31,7 +31,7 @@ class PublisherEventHandler(BaseEventHandler[BaseEvent, None]):
 
     async def handle(self, event: BaseEvent) -> None:
         await self.message_broker.send_message(
-            topic='game',
+            topic=self.broker_topic,
             value=convert_event_to_broker_message(event=event),
             key=str(event.event_id).encode(),
         )

@@ -1,17 +1,15 @@
 from dataclasses import dataclass
 
 from domain.events.developers.developer_created import NewDeveloperCreated
-from infra.message_broker.convertors import convert_event_to_broker_message
+from infra.email.base import BaseEmailBackend
 from logic.events.base import BaseEventHandler
 
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class NewDeveloperCreatedEventHander(BaseEventHandler[NewDeveloperCreated, None]):
+    email_backend: BaseEmailBackend
+
     async def handle(self, event: NewDeveloperCreated) -> None:
-        await self.message_broker.send_message(
-            topic='game',
-            value=convert_event_to_broker_message(event=event),
-            key=str(event.event_id).encode(),
-        )
+        await self.email_backend.send_activation_developer_email(email=event.email)
 

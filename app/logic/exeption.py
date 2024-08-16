@@ -55,3 +55,30 @@ class NotFoundException(LogicException):
     @property
     def message(self):
         return f'NotFoundException {self.name}'
+
+
+@dataclass(eq=False)
+class LimitResendActivationEmail(LogicException):
+    name: str
+
+    @property
+    def message(self):
+        return f'LimitResendActivationEmail {self.name}'
+
+
+@dataclass(eq=False)
+class LimitExceeded(LogicException):
+    name: str
+
+    @property
+    def message(self):
+        return f'LimitExceeded {self.name}'
+
+
+@dataclass(eq=False)
+class WrongException(LogicException):
+    name: str
+
+    @property
+    def message(self):
+        return f'WrongException {self.name}'

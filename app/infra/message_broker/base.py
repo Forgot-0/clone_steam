@@ -13,7 +13,7 @@ class BaseMessageBroker(ABC):
         ...
 
     @abstractmethod
-    async def send_message(self, key: str, topic: str, value: bytes):
+    async def send_message(self, key: bytes, topic: str, value: bytes):
         ...
 
     @abstractmethod

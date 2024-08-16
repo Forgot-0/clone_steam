@@ -7,10 +7,6 @@ from domain.entities.developers import Developer
 
 
 
-class CreateDeveloperRequestSchema(BaseModel):
-    name: str
-    slug: str
-    email: str
 
 
 class DeveloperDetailSchema(BaseModel):

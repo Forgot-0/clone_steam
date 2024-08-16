@@ -1,7 +1,12 @@
 from punq import Container
 from domain.events.developers.developer_created import NewDeveloperCreated
+from logic.commands.developers.activate import ActivateEmailCommand, ActivateEmailCommandHandler
 from logic.commands.developers.create import CreateDeveloperCommand, CreateDeveloperCommandHandler
 from logic.commands.developers.delete import DeleteDeveloperCommand, DeleteDeveloperCommandHandler
+from logic.commands.developers.resend_activation_email import (
+    ResendActivationEmailCommand, 
+    ResendActivationEmailCommandHandler
+)
 from logic.commands.games.create import CreateGameCommand, CreateGameCommandHandler
 from logic.commands.languages.create import CreateLanguageCommand, CreateLanguageCommandHandler
 from logic.commands.tags.create import CreateTagCommand, CreateTagCommandHandler
@@ -32,6 +37,8 @@ def init_mediator(container: Container) -> Mediator:
     #Developer
     container.register(CreateDeveloperCommandHandler)
     container.register(DeleteDeveloperCommandHandler)
+    container.register(ActivateEmailCommandHandler)
+    container.register(ResendActivationEmailCommandHandler)
 
     container.register(GetAllDevelopersQueryHandler)
     container.register(DetailDevelopersQueryHandler)
@@ -61,6 +68,8 @@ def init_mediator(container: Container) -> Mediator:
     #Developer
     mediator.register_command(CreateDeveloperCommand, [container.resolve(CreateDeveloperCommandHandler)])
     mediator.register_command(DeleteDeveloperCommand, [container.resolve(DeleteDeveloperCommandHandler)])
+    mediator.register_command(ActivateEmailCommand, [container.resolve(ActivateEmailCommandHandler)])
+    mediator.register_command(ResendActivationEmailCommand, [container.resolve(ResendActivationEmailCommandHandler)])
 
     mediator.register_query(GetAllDevelopersQuery, container.resolve(GetAllDevelopersQueryHandler))
     mediator.register_query(DetailDeveloperQuery, container.resolve(DetailDevelopersQueryHandler))
@@ -68,9 +77,9 @@ def init_mediator(container: Container) -> Mediator:
     mediator.register_event(
         NewDeveloperCreated, 
         [
-            container.resolve(PublisherEventHandler), 
+            container.resolve(PublisherEventHandler),
             container.resolve(NewDeveloperCreatedEventHander)
-            ]
+        ]
         )
 
     #Tag

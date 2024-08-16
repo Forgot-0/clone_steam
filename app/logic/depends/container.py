@@ -1,10 +1,13 @@
 from punq import Container, Scope
 
 from fastapi_mail import ConnectionConfig, FastMail
-from infra.email.base import EmailBackend
+from redis.asyncio import Redis
+from infra.email.base import BaseEmailBackend
 from motor.motor_asyncio import AsyncIOMotorClient
+from infra.email.fasapiemail import FastApiEmailBackend
 from infra.message_broker.base import BaseMessageBroker
-from infra.repositories.developer.base import BaseDeveloperRepository, MemoryDeveloperRepository
+from infra.repositories.developer.base import BaseDeveloperRepository
+from infra.repositories.email.base import BaseEmailRepository
 from infra.repositories.game.base import BaseGameRepository
 from infra.repositories.languages.base import BaseLanguageRepository
 from infra.repositories.tags.base import BaseTagRepository
@@ -14,7 +17,8 @@ from logic.depends.init_repositories import (
     init_mongo_developer_repository, 
     init_mongo_game_repository, 
     init_mongo_language_repository, 
-    init_mongo_tag_repository
+    init_mongo_tag_repository,
+    init_redis_email_repository
 )
 from logic.mediator.mediator import Mediator
 from settings.config import Config
@@ -28,7 +32,21 @@ def _init_container() -> Container:
     container.register(Config, instance=Config(), scope=Scope.singleton)
     config: Config = container.resolve(Config)
 
-    # Email
+    container.register(
+        Redis, 
+        instance=Redis(
+            host=config.redis.host, 
+            port=config.redis.port
+            )
+        )
+
+
+    #Email Repository
+    redis = container.resolve(Redis)
+
+    container.register(BaseEmailRepository, factory=lambda: init_redis_email_repository(redis=redis))
+
+    #Email
     container.register(ConnectionConfig, instance=ConnectionConfig(
         MAIL_USERNAME=config.email.username,
         MAIL_PASSWORD=config.email.password,
@@ -41,10 +59,16 @@ def _init_container() -> Container:
         VALIDATE_CERTS=config.email.validate_certs,
     ), scope=Scope.singleton)
 
-    container.register(EmailBackend, 
-                        instance=FastMail(
-                            config=container.resolve(ConnectionConfig)
-                        ), 
+    def init_fastapimail_email_backend():
+        return FastApiEmailBackend(
+            fast_mail=FastMail(
+                        config=container.resolve(ConnectionConfig)
+                    ),
+            email_repository=container.resolve(BaseEmailRepository)
+            )
+
+    container.register(BaseEmailBackend, 
+                        factory=init_fastapimail_email_backend,
                         scope=Scope.singleton)
 
     # Broker

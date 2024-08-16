@@ -1,8 +1,14 @@
+from redis.asyncio import Redis
 from infra.repositories.developer.mongo.repository import MongoDeveloperRepository
+from infra.repositories.email.redis import RedisEmailRepository
 from infra.repositories.game.mongo.repository import MongoGameRepository
 from infra.repositories.languages.mongo.repository import MongoLanguageRepository
 from infra.repositories.tags.mongo.repository import MongoTagRepository
 from motor.motor_asyncio import AsyncIOMotorClient
+
+
+def init_redis_email_repository(redis: Redis):
+    return RedisEmailRepository(redis=redis)
 
 def init_mongo_developer_repository(client: AsyncIOMotorClient):
     return MongoDeveloperRepository(

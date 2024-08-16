@@ -9,14 +9,15 @@ class Email(BaseSettings):
     from_email: str = Field(alias="EMAIL_FROM")
     port: int = Field(default=587, alias="EMAIL_PORT")
     server: str = Field(alias="EMAIL_SERVER")
-    starttls: bool = Field(default=False, alias="EMAIL_STARTTLS")
-    ssl_tls: bool = Field(default=True, alias="EMAIL_SSL_TLS")
+    starttls: bool = Field(default=True, alias="EMAIL_STARTTLS")
+    ssl_tls: bool = Field(default=False, alias="EMAIL_SSL_TLS")
     use_credentials: bool = Field(default=True, alias="USE_CREDENTIALS")
     validate_certs: bool = Field(default=True, alias="VALIDATE_CERTS")
 
 
 class API(BaseSettings):
     port: int = Field(alias='API_PORT')
+    secret: str = Field(alias='SECRET')
 
 
 class DataBase(BaseSettings):
@@ -27,7 +28,11 @@ class DataBase(BaseSettings):
 
 
 class Broker(BaseSettings):
-    url: str = "kafka:29092"#Field(alias="BROKER_URL")
+    url: str = Field(alias="BROKER_URL")
+
+class Redis(BaseSettings):
+    host: str = Field(alias="REDIS_HOST")
+    port: str = Field(alias="REDIS_PORT")
 
 
 class Config:
@@ -35,4 +40,4 @@ class Config:
     broker = Broker()
     db = DataBase()
     email = Email()
-
+    redis = Redis()

@@ -52,6 +52,6 @@ class MongoDeveloperRepository(BaseMongoDBRepository, BaseDeveloperRepository):
         count = await self._collection.count_documents({'is_deleted': False})
         return [convert_developer_mapping_to_entity(developer) for developer in developers], count
 
-    async def activate(self, id: UUID) -> None:
-        await self._collection.update_one({'_id': id}, update={"$set": {'is_active': True}})
+    async def activate(self, email: str) -> None:
+        await self._collection.update_one({'email': email}, update={"$set": {'is_active': True}})
 

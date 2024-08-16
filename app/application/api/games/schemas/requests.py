@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Iterable, List, Optional
+from typing import Optional
 from uuid import UUID
-from fastapi import Query
 from pydantic import BaseModel, Field
 
 from infra.repositories.filters import GetGamesFiltersInfra

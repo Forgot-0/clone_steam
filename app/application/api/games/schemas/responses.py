@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel
 
-from application.api.developers.schemas import DeveloperDetailSchema
+from application.api.developers.schemas.responses import DeveloperDetailSchema
 from application.api.languages.schemas.responses import LanguageDetailSchema
 from application.api.schemas import BaseQueryResponseSchema
 from application.api.tags.schemas.responses import TagDetailSchema

@@ -1,15 +1,16 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import Any
 
 
 
-T = TypeVar("T", bound=Any)
-
-
-@dataclass(frozen=True)
-class EmailBackend(ABC):
+@dataclass
+class BaseEmailBackend(ABC):
 
     @abstractmethod
-    async def send_email(self, template: dict[str, Any]) -> None:
+    async def send_email(self, message: dict[str, Any]) -> None:
+        ...
+
+    @abstractmethod
+    async def send_activation_developer_email(self, email: str) -> None:
         ...

@@ -1,4 +1,3 @@
-from punq import Container
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 
@@ -15,9 +14,6 @@ async def lifespan(app: FastAPI):
     await init_message_broker()
     yield
     await close_message_broker()
-
-
-
 
 def create_app() -> FastAPI:
     app = FastAPI(

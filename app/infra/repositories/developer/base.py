@@ -44,7 +44,7 @@ class BaseDeveloperRepository(ABC):
         ...
 
     @abstractmethod
-    async def activate(self, id: UUID) -> None:
+    async def activate(self, email: str) -> None:
         ...
 
 

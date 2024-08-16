@@ -8,7 +8,6 @@ from aiokafka.producer import AIOKafkaProducer
 from infra.message_broker.base import BaseMessageBroker
 
 
-
 @dataclass
 class KafkaMessageBroker(BaseMessageBroker):
     producer: AIOKafkaProducer
