@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from domain.events.base import BaseEvent
 from logic.commands.base import CR, CT, BaseCommand, BaseCommandHandler
-from logic.events.base import ER, ET, BaseEventHandler, PublisherEventHandler
+from logic.events.base import ER, ET, BaseEventHandler
 from logic.exeption import HandlersNotRegisteredExeption
 from logic.mediator.event_mediator import EventMediator
 from logic.queries.base import QR, QT, BaseQuery, BaseQueryHandler

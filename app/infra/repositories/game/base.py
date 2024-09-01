@@ -30,6 +30,13 @@ class BaseGameRepository(ABC):
     async def get_games(self, filters: GetGamesFiltersInfra, pagination: PaginationInfra) -> tuple[Iterable[Game], int]:
         ...
 
+    @abstractmethod
+    async def delete_by_developer_id(self, id: UUID) -> None:
+        ...
+    
+    @abstractmethod
+    async def delete_by_id(self, id: UUID) -> None:
+        ...
 
 
 @dataclass

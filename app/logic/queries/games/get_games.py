@@ -19,4 +19,4 @@ class GetGamesFilterQueryHandler(BaseQueryHandler[GetGamesFilterQuery, tuple[Ite
 
     async def handle(self, query: GetGamesFilterQuery) -> tuple[Iterable[Game], int]:
         result, count = await self.game_repository.get_games(filters=query.filters, pagination=query.pagination)
-        return result, count 
+        return result, count

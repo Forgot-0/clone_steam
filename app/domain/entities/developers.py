@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from domain.entities.base import AggregateRoot
 from domain.events.developers.developer_created import NewDeveloperCreated
-from domain.events.developers.developer_deleted import DeleteDeveloper
+from domain.events.developers.developer_deleted import DeveloperDeleted
 from domain.exception.base import AlreadyDeletedException
 from domain.values.base import Email, Name, Slug
 
@@ -38,4 +38,4 @@ class Developer(AggregateRoot):
         self.is_deleted = True
         self.name = Name(None)
 
-        self.register_event(DeleteDeveloper(id=self.id))
+        self.register_event(DeveloperDeleted(id=self.id))

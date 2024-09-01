@@ -1,5 +1,6 @@
 from punq import Container
 from domain.events.developers.developer_created import NewDeveloperCreated
+from domain.events.developers.developer_deleted import DeveloperDeleted
 from logic.commands.developers.activate import ActivateEmailCommand, ActivateEmailCommandHandler
 from logic.commands.developers.create import CreateDeveloperCommand, CreateDeveloperCommandHandler
 from logic.commands.developers.delete import DeleteDeveloperCommand, DeleteDeveloperCommandHandler
@@ -8,10 +9,12 @@ from logic.commands.developers.resend_activation_email import (
     ResendActivationEmailCommandHandler
 )
 from logic.commands.games.create import CreateGameCommand, CreateGameCommandHandler
+from logic.commands.games.delete import DeleteGameCommand, DeleteGameCommandHandler
 from logic.commands.languages.create import CreateLanguageCommand, CreateLanguageCommandHandler
 from logic.commands.tags.create import CreateTagCommand, CreateTagCommandHandler
 from logic.events.base import PublisherEventHandler
 from logic.events.developer.created import NewDeveloperCreatedEventHander
+from logic.events.developer.deleted import DeletedDeveloperEventHandler
 from logic.queries.developers.detail import DetailDeveloperQuery, DetailDevelopersQueryHandler
 from logic.queries.developers.get_all import GetAllDevelopersQueryHandler, GetAllDevelopersQuery
 from logic.queries.games.detail import DetailGameQuery, DetailGameQueryHandler
@@ -29,6 +32,7 @@ def init_mediator(container: Container) -> Mediator:
 
     #Game
     container.register(CreateGameCommandHandler)
+    container.register(DeleteGameCommandHandler)
 
     container.register(GetAllGameQueryHandler)
     container.register(DetailGameQueryHandler)
@@ -44,6 +48,8 @@ def init_mediator(container: Container) -> Mediator:
     container.register(DetailDevelopersQueryHandler)
 
     container.register(NewDeveloperCreatedEventHander)
+    container.register(DeletedDeveloperEventHandler)
+
 
     #Tag
     container.register(CreateTagCommandHandler)
@@ -53,13 +59,14 @@ def init_mediator(container: Container) -> Mediator:
     container.register(CreateLanguageCommandHandler)
     container.register(GetAllLanguageQueryHandler)
 
-
     mediator = Mediator()
 
     container.register(EventMediator, instance=mediator)
 
     #Game
     mediator.register_command(CreateGameCommand, [container.resolve(CreateGameCommandHandler)])
+    mediator.register_command(DeleteGameCommand, [container.resolve(DeleteGameCommandHandler)])
+
 
     mediator.register_query(DetailGameQuery, container.resolve(DetailGameQueryHandler))
     mediator.register_query(GetAllGameQuery, container.resolve(GetAllGameQueryHandler))
@@ -75,10 +82,18 @@ def init_mediator(container: Container) -> Mediator:
     mediator.register_query(DetailDeveloperQuery, container.resolve(DetailDevelopersQueryHandler))
 
     mediator.register_event(
-        NewDeveloperCreated, 
+        NewDeveloperCreated,
         [
             container.resolve(PublisherEventHandler),
             container.resolve(NewDeveloperCreatedEventHander)
+        ]
+        )
+
+    mediator.register_event(
+        DeveloperDeleted,
+        [
+            container.resolve(PublisherEventHandler),
+            container.resolve(DeletedDeveloperEventHandler)
         ]
         )
 

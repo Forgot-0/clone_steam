@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from redis.asyncio import Redis
 
 from infra.repositories.email.base import BaseEmailRepository
+from infra.repositories.email.redis.convertors import convert_bytes_to_str
 
 
 @dataclass
@@ -19,9 +20,9 @@ class RedisEmailRepository(BaseEmailRepository):
     async def set_time(self, name: str, time: int) -> None:
         await self.redis.expire(name=name, time=time)
 
-    async def get_dict(self, name: str) -> dict:
+    async def get_dict(self, name: str) -> dict[str, str]:
         value: dict[bytes, bytes] = await self.redis.hgetall(name=name)
-        return {key.decode('utf-8'): value.decode('utf-8') for key, value in value.items()}
+        return convert_bytes_to_str(value=value)
 
     async def incr_by(self, name: str, key: str, amount: int) -> None:
         await self.redis.hincrby(name=name, key=key, amount=amount)

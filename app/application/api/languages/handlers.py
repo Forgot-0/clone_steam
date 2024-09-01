@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from punq import Container
 
 from application.api.languages.schemas.requests import CreateLanguageRequestSchema
 from application.api.languages.schemas.responses import GetAllLanguagesQueryResponseSchema, LanguageDetailSchema
 from application.api.schemas import ErrorSchema, Pagination
-from domain.exception.base import ApplicationException
 from logic.commands.languages.create import CreateLanguageCommand
 from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
@@ -32,13 +31,10 @@ async def create_language(
 ) -> LanguageDetailSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        language, *_ = await mediator.handle_command(
-            CreateLanguageCommand(**schema.model_dump()
-            )
+    language, *_ = await mediator.handle_command(
+        CreateLanguageCommand(**schema.model_dump()
         )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exception.message)
+    )
 
     return LanguageDetailSchema.from_entity(language=language)
 
@@ -57,13 +53,10 @@ async def get_all_languages(
 ) -> GetAllLanguagesQueryResponseSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        languages, count = await mediator.handle_query(
-            GetAllLanguageQuery(pagination=filters.to_infra())
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exception.message)
-    
+    languages, count = await mediator.handle_query(
+        GetAllLanguageQuery(pagination=filters.to_infra())
+    )
+
     return GetAllLanguagesQueryResponseSchema(
         items=[LanguageDetailSchema.from_entity(lang) for lang in languages],
         count=count,

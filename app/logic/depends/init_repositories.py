@@ -1,6 +1,6 @@
 from redis.asyncio import Redis
 from infra.repositories.developer.mongo.repository import MongoDeveloperRepository
-from infra.repositories.email.redis import RedisEmailRepository
+from infra.repositories.email.redis.repository import RedisEmailRepository
 from infra.repositories.game.mongo.repository import MongoGameRepository
 from infra.repositories.languages.mongo.repository import MongoLanguageRepository
 from infra.repositories.tags.mongo.repository import MongoTagRepository

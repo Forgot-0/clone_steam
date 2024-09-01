@@ -1,16 +1,16 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from punq import Container
 
 from application.api.games.schemas.requests import CreateGameRequestSchema, GameFilters
 from application.api.games.schemas.responses import (
     GameDetailForAllSchema, 
-    GameDetailSchema, 
+    GameDetailSchema,
     GetAllGamesQueryResponseSchema
 )
 from application.api.schemas import ErrorSchema, Pagination
-from domain.exception.base import ApplicationException
 from logic.commands.games.create import CreateGameCommand
+from logic.commands.games.delete import DeleteGameCommand
 from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.games.detail import DetailGameQuery
@@ -39,12 +39,9 @@ async def create_game(
 ) -> GameDetailSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        game, *_ = await mediator.handle_command(
-            CreateGameCommand(**schema.model_dump())
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exception.message)
+    game, *_ = await mediator.handle_command(
+        CreateGameCommand(**schema.model_dump())
+    )
 
     return GameDetailSchema.from_entity(game=game)
 
@@ -63,13 +60,31 @@ async def get_game_by_id(
 ) -> GameDetailSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        developer = await mediator.handle_query(
-            DetailGameQuery(game_id=game_id)
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exception.message)
+    developer = await mediator.handle_query(
+        DetailGameQuery(game_id=game_id)
+    )
 
+    return GameDetailSchema.from_entity(developer)
+
+@router.delete(
+    '/{game_id}',
+    status_code=status.HTTP_200_OK,
+    description='Delete game by id',
+    responses={
+        status.HTTP_200_OK: {'model': GameDetailSchema},
+        status.HTTP_400_BAD_REQUEST: {'model': ErrorSchema}
+    }
+)
+async def delete_game_by_id(
+    game_id: UUID,
+    container: Container=Depends(init_container)
+) -> GameDetailSchema:
+    mediator: Mediator = container.resolve(Mediator)
+
+    developer = await mediator.handle_command(
+        DeleteGameCommand(game_id=game_id)
+    )
+    
     return GameDetailSchema.from_entity(developer)
 
 @router.get(
@@ -86,14 +101,11 @@ async def get_all_games(
     container: Container=Depends(init_container)
 ) -> GetAllGamesQueryResponseSchema:
     mediator: Mediator = container.resolve(Mediator)
-
-    try:
-        games, count = await mediator.handle_query(
-            GetAllGameQuery(pagination=pagination.to_infra())
-            )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exception.message)
-
+    
+    games, count = await mediator.handle_query(
+        GetAllGameQuery(pagination=pagination.to_infra())
+    )
+   
     return GetAllGamesQueryResponseSchema(
         items=[GameDetailForAllSchema.from_entity(game) for game in games],
         count=count,
@@ -119,16 +131,13 @@ async def get_games(
 ) -> GetAllGamesQueryResponseSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        games, count = await mediator.handle_query(
-            GetGamesFilterQuery(
-                filters=filters.to_infra(tags=tags, languages=languages), 
-                pagination=pagination.to_infra()
-                )
-            )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exception.message)
-
+    games, count = await mediator.handle_query(
+        GetGamesFilterQuery(
+            filters=filters.to_infra(tags=tags, languages=languages), 
+            pagination=pagination.to_infra()
+        )
+    )
+    
     return GetAllGamesQueryResponseSchema(
         items=[GameDetailForAllSchema.from_entity(game) for game in games],
         count=count,

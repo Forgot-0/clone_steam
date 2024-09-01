@@ -4,10 +4,21 @@ services:
   redis:
     image: redis:latest
     restart: always
+    hostname: redis
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - "28081:8081"
 
 
 volumes:

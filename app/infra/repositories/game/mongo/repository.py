@@ -56,3 +56,9 @@ class MongoGameRepository(BaseMongoDBRepository, BaseGameRepository):
         count = await self._collection.count_documents(filter=filter_dict)
 
         return [convert_game_dict_to_entity(game) for game in games], count
+
+    async def delete_by_developer_id(self, id: UUID) -> None:
+        await self._collection.update_many({'developer._id': id}, update={"$set": {'is_deleted': True}})
+
+    async def delete_by_id(self, id: UUID) -> None:
+        await self._collection.update_one({'_id': id}, update={"$set": {'is_deleted': True}})

@@ -5,10 +5,5 @@ from domain.events.base import BaseEvent
 
 
 @dataclass(frozen=True)
-class DeleteDeveloper(BaseEvent):
+class DeveloperDeleted(BaseEvent):
     id: UUID
-
-
-
-
-

@@ -1,13 +1,11 @@
 from uuid import UUID
 from fastapi import Depends, status
-from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
 from punq import Container
 
 from application.api.developers.schemas.requests import ActivateDeveloperRequestSchema, CreateDeveloperRequestSchema
 from application.api.developers.schemas.responses import DeveloperDetailSchema, GetAllDevelopersQueryResponseSchema
 from application.api.schemas import ErrorSchema, Pagination
-from domain.exception.base import ApplicationException
 from logic.commands.developers.activate import ActivateEmailCommand
 from logic.commands.developers.create import CreateDeveloperCommand
 from logic.commands.developers.delete import DeleteDeveloperCommand
@@ -39,12 +37,9 @@ async def create_developer(
 ) -> DeveloperDetailSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        developer, *_ = await mediator.handle_command(
-            CreateDeveloperCommand(**schema.model_dump())
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+    developer, *_ = await mediator.handle_command(
+        CreateDeveloperCommand(**schema.model_dump())
+    )
 
     return DeveloperDetailSchema.from_entity(developer=developer)
 
@@ -62,12 +57,9 @@ async def delete_developer(
 ) -> None:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        await mediator.handle_command(
-            DeleteDeveloperCommand(id=developer_id)
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+    await mediator.handle_command(
+        DeleteDeveloperCommand(id=developer_id)
+    )
 
 @router.get(
     "/",
@@ -84,12 +76,9 @@ async def get_all_developers(
 ) -> GetAllDevelopersQueryResponseSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        items, count = await mediator.handle_query(
-            GetAllDevelopersQuery(pagination=pagination.to_infra())
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+    items, count = await mediator.handle_query(
+        GetAllDevelopersQuery(pagination=pagination.to_infra())
+    )
 
     return GetAllDevelopersQueryResponseSchema(
         items=[DeveloperDetailSchema.from_entity(item) for item in items], 
@@ -112,13 +101,9 @@ async def get_developer(
 ) -> DeveloperDetailSchema:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        developer = await mediator.handle_query(
-            DetailDeveloperQuery(id=developer_id)
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
-
+    developer = await mediator.handle_query(
+        DetailDeveloperQuery(id=developer_id)
+    )
     return DeveloperDetailSchema.from_entity(developer)
 
 @router.post(
@@ -135,12 +120,9 @@ async def activate(
 ) -> None:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        await mediator.handle_command(
-            ActivateEmailCommand(**schema.model_dump())
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+    await mediator.handle_command(
+        ActivateEmailCommand(**schema.model_dump())
+    )
 
 @router.post(
     '/resend_activation_email/{email}',
@@ -156,9 +138,6 @@ async def resend_email(
 ) -> None:
     mediator: Mediator = container.resolve(Mediator)
 
-    try:
-        await mediator.handle_command(
-            ResendActivationEmailCommand(email=email)
-        )
-    except ApplicationException as exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+    await mediator.handle_command(
+        ResendActivationEmailCommand(email=email)
+    )

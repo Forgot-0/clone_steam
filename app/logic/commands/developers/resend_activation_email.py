@@ -20,12 +20,10 @@ class ResendActivationEmailCommandHandler(BaseCommandHandler[ResendActivationEma
 
     async def handle(self, command: ResendActivationEmailCommand) -> None:
         email_data = await self.email_repository.get_dict(name=command.email)
-        if not email_data:
-            raise NotFoundException("Not found activate user")
 
-        if int(email_data['resend']) > 3:
+        if not email_data and int(email_data['resend']) >= 3:
             raise LimitResendActivationEmail(name=command.email)
 
-        await self.email_backend.send_activation_developer_email(email=command.email)
+        await self.email_backend.send_developer_activation_email(email=command.email)
 
         await self.email_repository.incr_by(name=command.email, key='resend', amount=email_data['resend'])

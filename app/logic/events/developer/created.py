@@ -6,10 +6,10 @@ from logic.events.base import BaseEventHandler
 
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(frozen=True)
 class NewDeveloperCreatedEventHander(BaseEventHandler[NewDeveloperCreated, None]):
     email_backend: BaseEmailBackend
 
     async def handle(self, event: NewDeveloperCreated) -> None:
-        await self.email_backend.send_activation_developer_email(email=event.email)
+        await self.email_backend.send_developer_activation_email(email=event.email)
 

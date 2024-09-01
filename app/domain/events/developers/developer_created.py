@@ -10,7 +10,3 @@ class NewDeveloperCreated(BaseEvent):
     name: str
     slug: str
     email: str
-
-
-
-

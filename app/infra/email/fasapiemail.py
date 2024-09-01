@@ -25,7 +25,7 @@ class FastApiEmailBackend(BaseEmailBackend):
         )
         await self.fast_mail.send_message(message=message_schema)
 
-    async def send_activation_developer_email(self, email: str) -> None:
+    async def send_developer_activation_email(self, email: str) -> None:
         code = await self.generate_code(name=email)
 
         body = f"""{code}"""

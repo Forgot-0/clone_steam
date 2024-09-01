@@ -12,5 +12,5 @@ class BaseEmailBackend(ABC):
         ...
 
     @abstractmethod
-    async def send_activation_developer_email(self, email: str) -> None:
+    async def send_developer_activation_email(self, email: str) -> None:
         ...
