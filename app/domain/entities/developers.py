@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
 
 from domain.entities.base import AggregateRoot
-from domain.events.developers.developer_created import NewDeveloperCreated
-from domain.events.developers.developer_deleted import DeveloperDeleted
+from domain.events.developers.activated import ActvatedDeveloperEvent
+from domain.events.developers.created import CreatedDeveloperEvent
+from domain.events.developers.deleted import DeletedDeveloperEvent
 from domain.exception.base import AlreadyDeletedException
 from domain.values.base import Email, Name, Slug
 
@@ -21,7 +22,7 @@ class Developer(AggregateRoot):
     def create_developer(cls, name: Name, slug: Slug, email: Email) -> 'Developer':
         developer = cls(name=name, slug=slug, email=email)
 
-        developer.register_event(NewDeveloperCreated(
+        developer.register_event(CreatedDeveloperEvent(
             id=developer.id,
             name=developer.name.as_generic_type(),
             slug=developer.slug.as_generic_type(),
@@ -36,6 +37,19 @@ class Developer(AggregateRoot):
             raise AlreadyDeletedException()
 
         self.is_deleted = True
+        self.is_active = False
         self.name = Name(None)
 
-        self.register_event(DeveloperDeleted(id=self.id))
+        self.register_event(DeletedDeveloperEvent(id=self.id))
+    
+    def activate(self) -> None:
+        if self.is_active:
+            raise 
+        self.is_active = True
+
+        self.register_event(ActvatedDeveloperEvent(
+            id=self.id,
+            name=self.name,
+            slug=self.slug,
+            email=self.email
+        ))

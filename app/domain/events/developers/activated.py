@@ -5,5 +5,8 @@ from domain.events.base import BaseEvent
 
 
 @dataclass(frozen=True)
-class GameCreated(BaseEvent):
+class ActvatedDeveloperEvent(BaseEvent):
     id: UUID
+    name: str
+    slug: str
+    email: str

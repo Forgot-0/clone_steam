@@ -8,7 +8,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 
 def init_redis_email_repository(redis: Redis):
-    return RedisEmailRepository(redis=redis)
+    return RedisEmailRepository(
+        redis=redis
+    )
 
 def init_mongo_developer_repository(client: AsyncIOMotorClient):
     return MongoDeveloperRepository(

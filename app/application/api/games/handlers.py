@@ -1,6 +1,6 @@
+from typing import Annotated
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
-from punq import Container
 
 from application.api.games.schemas.requests import CreateGameRequestSchema, GameFilters
 from application.api.games.schemas.responses import (
@@ -9,9 +9,9 @@ from application.api.games.schemas.responses import (
     GetAllGamesQueryResponseSchema
 )
 from application.api.schemas import ErrorSchema, Pagination
+from application.dependencies import get_mediator
 from logic.commands.games.create import CreateGameCommand
 from logic.commands.games.delete import DeleteGameCommand
-from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.games.detail import DetailGameQuery
 from logic.queries.games.get_all import GetAllGameQuery
@@ -35,9 +35,8 @@ router = APIRouter(
 )
 async def create_game(
     schema: CreateGameRequestSchema,
-    container: Container=Depends(init_container)
+    mediator: Annotated[Mediator, Depends(get_mediator)]
 ) -> GameDetailSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     game, *_ = await mediator.handle_command(
         CreateGameCommand(**schema.model_dump())
@@ -56,9 +55,8 @@ async def create_game(
 )
 async def get_game_by_id(
     game_id: UUID,
-    container: Container=Depends(init_container)
+    mediator: Annotated[Mediator, Depends(get_mediator)]
 ) -> GameDetailSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     developer = await mediator.handle_query(
         DetailGameQuery(game_id=game_id)
@@ -77,9 +75,8 @@ async def get_game_by_id(
 )
 async def delete_game_by_id(
     game_id: UUID,
-    container: Container=Depends(init_container)
+    mediator: Annotated[Mediator, Depends(get_mediator)]
 ) -> GameDetailSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     developer = await mediator.handle_command(
         DeleteGameCommand(game_id=game_id)
@@ -97,11 +94,10 @@ async def delete_game_by_id(
     }
 )
 async def get_all_games(
+    mediator: Annotated[Mediator, Depends(get_mediator)],
     pagination: Pagination=Depends(),
-    container: Container=Depends(init_container)
 ) -> GetAllGamesQueryResponseSchema:
-    mediator: Mediator = container.resolve(Mediator)
-    
+
     games, count = await mediator.handle_query(
         GetAllGameQuery(pagination=pagination.to_infra())
     )
@@ -123,13 +119,12 @@ async def get_all_games(
     }
 )
 async def get_games(
+    mediator: Annotated[Mediator, Depends(get_mediator)],
     filters: GameFilters=Depends(),
     pagination: Pagination=Depends(),
     tags: list[UUID]=Query(default_factory=list),
     languages: list[UUID]=Query(default_factory=list),
-    container: Container=Depends(init_container)
 ) -> GetAllGamesQueryResponseSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     games, count = await mediator.handle_query(
         GetGamesFilterQuery(

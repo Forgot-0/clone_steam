@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.concurrency import asynccontextmanager
 
+from application.api.healthchecks import router as healthchecks_router
 from application.api.games.handlers import router as game_router
 from application.api.developers.handlers import router as developer_router
 from application.api.tags.handlers import router as tag_router
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan
     )
 
+    app.include_router(healthchecks_router)
     app.include_router(game_router)
     app.include_router(developer_router)
     app.include_router(tag_router)

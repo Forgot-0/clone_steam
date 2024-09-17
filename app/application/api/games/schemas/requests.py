@@ -25,7 +25,6 @@ class GameFilters(BaseModel):
     title: Optional[str] = None
     developer_id: Optional[UUID] = None
 
-
     def to_infra(self, tags, languages):
         return GetGamesFiltersInfra(
             title=self.title,

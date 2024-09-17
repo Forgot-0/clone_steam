@@ -1,6 +1,6 @@
 from punq import Container
-from domain.events.developers.developer_created import NewDeveloperCreated
-from domain.events.developers.developer_deleted import DeveloperDeleted
+from domain.events.developers.created import CreatedDeveloperEvent
+from domain.events.developers.deleted import DeletedDeveloperEvent
 from logic.commands.developers.activate import ActivateEmailCommand, ActivateEmailCommandHandler
 from logic.commands.developers.create import CreateDeveloperCommand, CreateDeveloperCommandHandler
 from logic.commands.developers.delete import DeleteDeveloperCommand, DeleteDeveloperCommandHandler
@@ -82,7 +82,7 @@ def init_mediator(container: Container) -> Mediator:
     mediator.register_query(DetailDeveloperQuery, container.resolve(DetailDevelopersQueryHandler))
 
     mediator.register_event(
-        NewDeveloperCreated,
+        CreatedDeveloperEvent,
         [
             container.resolve(PublisherEventHandler),
             container.resolve(NewDeveloperCreatedEventHander)
@@ -90,7 +90,7 @@ def init_mediator(container: Container) -> Mediator:
         )
 
     mediator.register_event(
-        DeveloperDeleted,
+        DeletedDeveloperEvent,
         [
             container.resolve(PublisherEventHandler),
             container.resolve(DeletedDeveloperEventHandler)

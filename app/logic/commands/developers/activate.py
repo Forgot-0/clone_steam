@@ -18,7 +18,6 @@ class ActivateEmailCommand(BaseCommand):
 @dataclass(frozen=True)
 class ActivateEmailCommandHandler(BaseCommandHandler[ActivateEmailCommand, None]):
     developer_repository: BaseDeveloperRepository
-    email_backend: BaseEmailBackend
     email_repository: BaseEmailRepository
 
     async def handle(self, command: ActivateEmailCommand) -> None:
@@ -27,10 +26,9 @@ class ActivateEmailCommandHandler(BaseCommandHandler[ActivateEmailCommand, None]
         if int(email_data['limit']) > 3:
             raise LimitExceeded(f"{command.email}")
 
-        if email_data['code'] == command.code:
-            await self.email_repository.delete(name=command.email)
-            await self.developer_repository.activate(email=command.email)
-            return
+        if email_data['code'] != command.code:
+            await self.email_repository.incr_by(name=command.email, key='limit', amount=1)
+            raise WrongException("Wrong code")
 
-        await self.email_repository.incr_by(name=command.email, key='limit', amount=1)
-        raise WrongException("Wrong code")
+        await self.email_repository.delete(name=command.email)
+        await self.developer_repository.activate(email=command.email)

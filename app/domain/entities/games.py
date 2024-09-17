@@ -6,6 +6,7 @@ from domain.entities.base import AggregateRoot
 from domain.entities.developers import Developer
 from domain.entities.languages import Language
 from domain.entities.tags import Tag
+from domain.events.games.deleted import DeletedGameEvent
 from domain.exception.base import AlreadyDeletedException
 from domain.values.base import Text, Title, Url
 
@@ -52,4 +53,5 @@ class Game(AggregateRoot):
         if self.is_deleted:
             raise AlreadyDeletedException()
 
+        self.register_event(DeletedGameEvent(id=self.id))
         self.is_deleted = True

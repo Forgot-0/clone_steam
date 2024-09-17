@@ -1,10 +1,10 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, status
-from punq import Container
 from application.api.schemas import ErrorSchema, Pagination
 from application.api.tags.schemas.requests import CreateTagRequestSchema
 from application.api.tags.schemas.responses import GetAllTagsQueryResponseSchema, TagDetailSchema
+from application.dependencies import get_mediator
 from logic.commands.tags.create import CreateTagCommand
-from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.tags.get_all import GetAllTagsQuery
 
@@ -26,9 +26,8 @@ router = APIRouter(
 )
 async def create_tag(
     schema: CreateTagRequestSchema,
-    container: Container=Depends(init_container)
+    mediator: Annotated[Mediator, Depends(get_mediator)]
 ) -> TagDetailSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     tag, *_ = await mediator.handle_command(
         CreateTagCommand(**schema.model_dump())
@@ -46,10 +45,9 @@ async def create_tag(
     }
 )
 async def get_all_tags(
+    mediator: Annotated[Mediator, Depends(get_mediator)],
     filters: Pagination=Depends(),
-    container: Container=Depends(init_container)
 ) -> GetAllTagsQueryResponseSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     tags, count = await mediator.handle_query(
         GetAllTagsQuery(pagination=filters.to_infra())

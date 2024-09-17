@@ -10,6 +10,10 @@ class BaseEmailRepository(ABC):
         ...
 
     @abstractmethod
+    async def set_for_time(self, name: str, mapping: dict, time: int = 60*60) -> None:
+        ...
+
+    @abstractmethod
     async def get(self, name: str, key: str) -> str:
         ...
 
@@ -18,7 +22,7 @@ class BaseEmailRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_dict(self, name: str) -> dict:
+    async def get_dict(self, name: str) -> dict[str, str] | None:
         ...
 
     @abstractmethod

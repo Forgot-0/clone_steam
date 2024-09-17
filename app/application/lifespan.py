@@ -1,5 +1,5 @@
 from infra.message_broker.base import BaseMessageBroker
-from logic.depends.init import init_container
+from infra.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from settings.config import Config
 

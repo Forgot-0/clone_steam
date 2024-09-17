@@ -2,6 +2,7 @@ from punq import Container, Scope
 
 from fastapi_mail import ConnectionConfig, FastMail
 from redis.asyncio import Redis
+from infra.cache.base import BaseCacheService, MemoryCacheService
 from infra.email.base import BaseEmailBackend
 from motor.motor_asyncio import AsyncIOMotorClient
 from infra.email.fasapiemail import FastApiEmailBackend
@@ -11,9 +12,9 @@ from infra.repositories.email.base import BaseEmailRepository
 from infra.repositories.game.base import BaseGameRepository
 from infra.repositories.languages.base import BaseLanguageRepository
 from infra.repositories.tags.base import BaseTagRepository
-from logic.depends.init_mediator import init_mediator
-from logic.depends.init_broker import create_message_broker
-from logic.depends.init_repositories import (
+from infra.depends.init_mediator import init_mediator
+from infra.depends.init_broker import create_message_broker
+from infra.depends.init_repositories import (
     init_mongo_developer_repository, 
     init_mongo_game_repository, 
     init_mongo_language_repository, 
@@ -47,24 +48,26 @@ def _init_container() -> Container:
     container.register(BaseEmailRepository, factory=lambda: init_redis_email_repository(redis=redis))
 
     #Email
-    container.register(ConnectionConfig, instance=ConnectionConfig(
-        MAIL_USERNAME=config.email.username,
-        MAIL_PASSWORD=config.email.password,
-        MAIL_FROM=config.email.from_email,
-        MAIL_PORT=config.email.port,
-        MAIL_SERVER=config.email.server,
-        MAIL_STARTTLS=config.email.starttls,
-        MAIL_SSL_TLS=config.email.ssl_tls,
-        USE_CREDENTIALS=config.email.use_credentials,
-        VALIDATE_CERTS=config.email.validate_certs,
-    ), scope=Scope.singleton)
+    container.register(ConnectionConfig, 
+        instance=ConnectionConfig(
+            MAIL_USERNAME=config.email.username,
+            MAIL_PASSWORD=config.email.password,
+            MAIL_FROM=config.email.from_email,
+            MAIL_PORT=config.email.port,
+            MAIL_SERVER=config.email.server,
+            MAIL_STARTTLS=config.email.starttls,
+            MAIL_SSL_TLS=config.email.ssl_tls,
+            USE_CREDENTIALS=config.email.use_credentials,
+            VALIDATE_CERTS=config.email.validate_certs,
+        ), 
+        scope=Scope.singleton
+    )
 
     def init_fastapimail_email_backend():
         return FastApiEmailBackend(
             fast_mail=FastMail(
                         config=container.resolve(ConnectionConfig)
-                    ),
-            email_repository=container.resolve(BaseEmailRepository)
+                    )
             )
 
     container.register(BaseEmailBackend, 
@@ -77,6 +80,9 @@ def _init_container() -> Container:
         factory=lambda: create_message_broker(config=config),
         scope=Scope.singleton
     )
+
+    #Cache
+    container.register(BaseCacheService, MemoryCacheService, scope=Scope.singleton)
 
     # MongoDB
     def create_mongodb_client():

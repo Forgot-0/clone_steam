@@ -1,11 +1,11 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, status
-from punq import Container
 
 from application.api.languages.schemas.requests import CreateLanguageRequestSchema
 from application.api.languages.schemas.responses import GetAllLanguagesQueryResponseSchema, LanguageDetailSchema
 from application.api.schemas import ErrorSchema, Pagination
+from application.dependencies import get_mediator
 from logic.commands.languages.create import CreateLanguageCommand
-from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.languages.get_all import GetAllLanguageQuery
 
@@ -27,9 +27,8 @@ router = APIRouter(
 )
 async def create_language(
     schema: CreateLanguageRequestSchema,
-    container: Container=Depends(init_container)
+    mediator: Annotated[Mediator, Depends(get_mediator)]
 ) -> LanguageDetailSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     language, *_ = await mediator.handle_command(
         CreateLanguageCommand(**schema.model_dump()
@@ -48,10 +47,9 @@ async def create_language(
     }
 )
 async def get_all_languages(
+    mediator: Annotated[Mediator, Depends(get_mediator)],
     filters: Pagination=Depends(),
-    container: Container=Depends(init_container)
 ) -> GetAllLanguagesQueryResponseSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     languages, count = await mediator.handle_query(
         GetAllLanguageQuery(pagination=filters.to_infra())

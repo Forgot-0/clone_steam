@@ -1,16 +1,16 @@
+from typing import Annotated
 from uuid import UUID
 from fastapi import Depends, status
 from fastapi.routing import APIRouter
-from punq import Container
 
 from application.api.developers.schemas.requests import ActivateDeveloperRequestSchema, CreateDeveloperRequestSchema
 from application.api.developers.schemas.responses import DeveloperDetailSchema, GetAllDevelopersQueryResponseSchema
 from application.api.schemas import ErrorSchema, Pagination
+from application.dependencies import get_mediator
 from logic.commands.developers.activate import ActivateEmailCommand
 from logic.commands.developers.create import CreateDeveloperCommand
 from logic.commands.developers.delete import DeleteDeveloperCommand
 from logic.commands.developers.resend_activation_email import ResendActivationEmailCommand
-from logic.depends.init import init_container
 from logic.mediator.mediator import Mediator
 from logic.queries.developers.detail import DetailDeveloperQuery
 from logic.queries.developers.get_all import GetAllDevelopersQuery
@@ -33,9 +33,8 @@ router = APIRouter(
 )
 async def create_developer(
     schema: CreateDeveloperRequestSchema,
-    container: Container=Depends(init_container)
+    mediator: Annotated[Mediator, Depends(get_mediator)]
 ) -> DeveloperDetailSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     developer, *_ = await mediator.handle_command(
         CreateDeveloperCommand(**schema.model_dump())
@@ -53,9 +52,8 @@ async def create_developer(
 )
 async def delete_developer(
     developer_id: UUID,
-    container: Container=Depends(init_container)
+    mediator: Annotated[Mediator, Depends(get_mediator)]
 ) -> None:
-    mediator: Mediator = container.resolve(Mediator)
 
     await mediator.handle_command(
         DeleteDeveloperCommand(id=developer_id)
@@ -71,10 +69,9 @@ async def delete_developer(
     }
 )
 async def get_all_developers(
+    mediator: Annotated[Mediator, Depends(get_mediator)],
     pagination: Pagination=Depends(),
-    container: Container=Depends(init_container),
 ) -> GetAllDevelopersQueryResponseSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     items, count = await mediator.handle_query(
         GetAllDevelopersQuery(pagination=pagination.to_infra())
@@ -97,9 +94,8 @@ async def get_all_developers(
 )
 async def get_developer(
     developer_id: UUID,
-    container: Container=Depends(init_container),
+    mediator: Annotated[Mediator, Depends(get_mediator)],
 ) -> DeveloperDetailSchema:
-    mediator: Mediator = container.resolve(Mediator)
 
     developer = await mediator.handle_query(
         DetailDeveloperQuery(id=developer_id)
@@ -116,9 +112,8 @@ async def get_developer(
 )
 async def activate(
     schema: ActivateDeveloperRequestSchema,
-    container: Container=Depends(init_container),
+    mediator: Annotated[Mediator, Depends(get_mediator)],
 ) -> None:
-    mediator: Mediator = container.resolve(Mediator)
 
     await mediator.handle_command(
         ActivateEmailCommand(**schema.model_dump())
@@ -134,9 +129,8 @@ async def activate(
 )
 async def resend_email(
     email: str,
-    container: Container=Depends(init_container),
+    mediator: Annotated[Mediator, Depends(get_mediator)],
 ) -> None:
-    mediator: Mediator = container.resolve(Mediator)
 
     await mediator.handle_command(
         ResendActivationEmailCommand(email=email)

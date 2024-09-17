@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
 
 
 
@@ -8,9 +7,5 @@ from typing import Any
 class BaseEmailBackend(ABC):
 
     @abstractmethod
-    async def send_email(self, message: dict[str, Any]) -> None:
-        ...
-
-    @abstractmethod
-    async def send_developer_activation_email(self, email: str) -> None:
+    async def send_email(self, subject: str, email: str, body:str) -> None:
         ...

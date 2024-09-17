@@ -20,7 +20,7 @@ class RedisEmailRepository(BaseEmailRepository):
     async def set_time(self, name: str, time: int) -> None:
         await self.redis.expire(name=name, time=time)
 
-    async def get_dict(self, name: str) -> dict[str, str]:
+    async def get_dict(self, name: str) -> dict[str, str] | None:
         value: dict[bytes, bytes] = await self.redis.hgetall(name=name)
         return convert_bytes_to_str(value=value)
 
@@ -29,3 +29,7 @@ class RedisEmailRepository(BaseEmailRepository):
 
     async def delete(self, name: str) -> None:
         await self.redis.delete(name)
+
+    async def set_for_time(self, name: str, mapping: dict, time: int = 60*60) -> None:
+        await self.redis.hmset(name=name, mapping=mapping)
+        await self.redis.expire(name=name, time=time)
