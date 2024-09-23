@@ -4,13 +4,12 @@ from logic.mediator.mediator import Mediator
 from settings.config import Config
 
 
-async def init_message_broker():
+async def init_message_broker() -> None:
     container = init_container()
     message_broker: BaseMessageBroker = container.resolve(BaseMessageBroker)
     await message_broker.start()
 
-
-async def consume_in_background():
+async def consume_in_background() -> None:
     container = init_container()
     config: Config = container.resolve(Config)
     message_broker: BaseMessageBroker = container.resolve(BaseMessageBroker)
@@ -19,7 +18,7 @@ async def consume_in_background():
 
     pass
 
-async def close_message_broker():
+async def close_message_broker() -> None:
     container = init_container()
     message_broker: BaseMessageBroker = container.resolve(BaseMessageBroker)
     await message_broker.close()

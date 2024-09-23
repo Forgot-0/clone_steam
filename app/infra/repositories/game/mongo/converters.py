@@ -26,7 +26,7 @@ def convert_game_entity_to_dict(game: Game) -> dict[str, Any]:
 
 
 def convert_game_dict_to_entity(game_dict: dict[str, Any]):
-    game = Game(
+    game: Game = Game(
         id=game_dict['_id'],
         title=Title(game_dict['title']),
         description=Text(game_dict['description']),
@@ -34,8 +34,8 @@ def convert_game_dict_to_entity(game_dict: dict[str, Any]):
         release_date=game_dict['release_date'],
     )
 
-    game.add_medias(Url(media) for media in game_dict.get('medias', []))
-    game.add_languages(convert_language_dict_to_entity(language) for language in game_dict.get('languages', []))
-    game.add_tags(convert_tag_dict_to_entity(tag) for tag in game_dict.get('tags', []))
+    game.medias = [Url(media) for media in game_dict.get('medias', [])]
+    game.languages = [convert_language_dict_to_entity(language) for language in game_dict.get('languages', [])]
+    game.tags = [convert_tag_dict_to_entity(tag) for tag in game_dict.get('tags', [])]
 
     return game

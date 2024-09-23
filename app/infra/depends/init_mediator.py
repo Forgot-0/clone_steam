@@ -1,4 +1,5 @@
 from punq import Container
+from domain.events.developers.activated import ActvatedDeveloperEvent
 from domain.events.developers.created import CreatedDeveloperEvent
 from domain.events.developers.deleted import DeletedDeveloperEvent
 from logic.commands.developers.activate import ActivateEmailCommand, ActivateEmailCommandHandler
@@ -97,6 +98,12 @@ def init_mediator(container: Container) -> Mediator:
         ]
         )
 
+    mediator.register_event(
+        ActvatedDeveloperEvent,
+        [
+            container.resolve(PublisherEventHandler),
+        ]
+        )
     #Tag
     mediator.register_command(CreateTagCommand, [container.resolve(CreateTagCommandHandler)])
 

@@ -2,7 +2,8 @@ from punq import Container, Scope
 
 from fastapi_mail import ConnectionConfig, FastMail
 from redis.asyncio import Redis
-from infra.cache.base import BaseCacheService, MemoryCacheService
+from infra.cache.base import BaseCacheService
+from infra.cache.redis.cache import RedisCacheService
 from infra.email.base import BaseEmailBackend
 from motor.motor_asyncio import AsyncIOMotorClient
 from infra.email.fasapiemail import FastApiEmailBackend
@@ -82,7 +83,14 @@ def _init_container() -> Container:
     )
 
     #Cache
-    container.register(BaseCacheService, MemoryCacheService, scope=Scope.singleton)
+    def init_redis_cache_service(redis: Redis) -> BaseCacheService:
+        return RedisCacheService(redis=redis)
+
+    container.register(
+        BaseCacheService, 
+        factory=lambda: init_redis_cache_service(redis=redis), 
+        scope=Scope.singleton
+    )
 
     # MongoDB
     def create_mongodb_client():

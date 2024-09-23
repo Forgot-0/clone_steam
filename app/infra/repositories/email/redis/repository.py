@@ -22,7 +22,7 @@ class RedisEmailRepository(BaseEmailRepository):
 
     async def get_dict(self, name: str) -> dict[str, str] | None:
         value: dict[bytes, bytes] = await self.redis.hgetall(name=name)
-        return convert_bytes_to_str(value=value)
+        return convert_bytes_to_str(data=value)
 
     async def incr_by(self, name: str, key: str, amount: int) -> None:
         await self.redis.hincrby(name=name, key=key, amount=amount)

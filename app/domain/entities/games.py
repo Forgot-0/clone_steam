@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Iterable
 
 from domain.entities.base import AggregateRoot
 from domain.entities.developers import Developer
@@ -22,6 +21,7 @@ class Game(AggregateRoot):
     release_date: datetime
 
     developer: Developer
+    is_deleted: bool = field(default=False)
 
     medias: list[Url] = field(default_factory=list, kw_only=True)
     languages: list[Language] = field(default_factory=list, kw_only=True)
@@ -31,7 +31,6 @@ class Game(AggregateRoot):
         default_factory=datetime.now,
         kw_only=True
     )
-    is_deleted: bool = field(default=False, kw_only=True)
 
     @classmethod
     def create_game(

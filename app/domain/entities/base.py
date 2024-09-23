@@ -9,7 +9,7 @@ from domain.events.base import BaseEvent
 
 
 @dataclass
-class BaseEntiy(ABC):
+class BaseEntity(ABC):
     id: UUID = field(
         default_factory=lambda: uuid4(),
         kw_only=True
@@ -19,12 +19,12 @@ class BaseEntiy(ABC):
     def __hash__(self) -> int:
         return hash(self.id)
 
-    def __eq__(self, __value: 'BaseEntiy') -> bool:
+    def __eq__(self, __value: 'BaseEntity') -> bool:
         return self.id == __value.id
 
 
 @dataclass(kw_only=True)
-class AggregateRoot(BaseEntiy, ABC):
+class AggregateRoot(BaseEntity, ABC):
     _events: list[BaseEvent] = field(
         default_factory=list,
         init=False, repr=False, hash=False, compare=False,

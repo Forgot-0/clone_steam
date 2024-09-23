@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 class BaseCacheService(ABC):
 
     @abstractmethod
-    async def set_cache(self, key: str, data: str, time: int=60*60) -> None:
+    async def set_cache(self, key: str, data: dict, time: int=60*60) -> None:
         ...
 
     @abstractmethod
@@ -18,7 +18,7 @@ class BaseCacheService(ABC):
         ...
 
     @abstractmethod
-    async def get_or_set(self, key: str, data: str) -> str | None:
+    def key_builder(*args, **kwargs) -> str:
         ...
 
 
@@ -26,16 +26,19 @@ class BaseCacheService(ABC):
 class MemoryCacheService(BaseCacheService):
     db: dict[str, str] = field(default_factory=dict)
 
-    async def set_cache(self, key: str, data: str, time: int = 60 * 60):
+    async def set_cache(self, key: str, data: dict, time: int = 60 * 60) -> None:
         self.db[key] = data
 
     async def delete_cache(self, key: str) -> None:
         self.db.pop(key)
 
-    async def get_cache(self, key: str) -> str:
+    async def get_cache(self, key: str) -> dict:
         return self.db[key]
 
-    async def get_or_set(self, key: str, data: str) -> str | None:
+    async def get_or_set(self, key: str, data: dict) -> dict | None:
         data = self.db.get(key)
         if data: return data
         self.db[key] = data
+
+    def key_builder(*args, **kwargs) -> str:
+        return f'{args}-{kwargs}'

@@ -31,4 +31,9 @@ class ActivateEmailCommandHandler(BaseCommandHandler[ActivateEmailCommand, None]
             raise WrongException("Wrong code")
 
         await self.email_repository.delete(name=command.email)
+
+        developer = await self.developer_repository.get_by_email(email=command.email)
+        developer.activate()
+        await self.mediator.publish(developer.pull_events())
+
         await self.developer_repository.activate(email=command.email)
